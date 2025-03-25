@@ -18,12 +18,13 @@ def save_images(url, folder,img_count):
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')  # 设置窗口大小
     while not os.path.exists("C:/Users/shou-gakusei/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"):
-        # 初始化浏览器驱动
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=options
-        )
+
         try:
+            # 初始化浏览器驱动
+            # 把初始化代码塞进try代码块里确保不会因为网络问题直接崩溃
+            driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()),
+            options=options)
             driver.get(url)
 
             # 等待页面加载完成（可根据需要调整等待时间）
