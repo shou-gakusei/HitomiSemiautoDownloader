@@ -17,7 +17,7 @@ def save_images(url, folder,img_count):
     options.headless = True  # 无头模式
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')  # 设置窗口大小
-    while not os.path.exists("C:/Users/whfwtf/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"):
+    while not os.path.exists("C:/Users/shou-gakusei/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"):
         # 初始化浏览器驱动
         driver = webdriver.Chrome(
             service=Service(ChromeDriverManager().install()),
@@ -44,7 +44,7 @@ def save_images(url, folder,img_count):
             time.sleep(6)
 
             # 保存全屏截图
-            img_path = "C:/Users/whfwtf/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"
+            img_path = "C:/Users/shou-gakusei/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"
             driver.save_screenshot(img_path)
             print(f'截图已保存为：{os.path.abspath(img_path)}')
             driver.quit()
