@@ -17,18 +17,19 @@ def save_images(url, folder,img_count):
     options.headless = True  # 无头模式
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')  # 设置窗口大小
-    while not os.path.exists("C:/Users/shou-gakusei/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"):
-
-        try:
-            # 初始化浏览器驱动
-            # 把初始化代码塞进try代码块里确保不会因为网络问题直接崩溃
-            driver = webdriver.Chrome(
+    while not os.path.exists("C:/Users/whfwtf/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"):
+        # 初始化浏览器驱动
+        driver = webdriver.Chrome(
             service=Service(ChromeDriverManager().install()),
-            options=options)
+            options=options
+        )
+        print("opening page:"+url)
+        try:
+
             driver.get(url)
 
             # 等待页面加载完成（可根据需要调整等待时间）
-            time.sleep(5)
+            time.sleep(10)
 
             # 获取页面高度
             total_height = driver.execute_script("return document.body.scrollHeight")
@@ -40,37 +41,35 @@ def save_images(url, folder,img_count):
             driver.execute_script("window.scrollTo(0, 0);")
 
             # 等待内容加载
-            time.sleep(1)
+            time.sleep(6)
 
             # 保存全屏截图
-            img_path = "C:/Users/shou-gakusei/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"
+            img_path = "C:/Users/whfwtf/PycharmProjects/hitomidownloader/images/"+str(folder)+"_"+str(img_count)+".png"
             driver.save_screenshot(img_path)
             print(f'截图已保存为：{os.path.abspath(img_path)}')
-
-        except :
-            pass
-        finally:
             driver.quit()
+        except :
+            print("你的网络有问题！换个节点！！！！")
+            pass
+        '''
+        finally:
+            return 0
+        '''
+
     else:
         print(str(url)+"图片已存在")
-
-
-# 使用示例
-
-
-
-
-
 # 使用示例
 def save_reader_images(reader_id,quantities):
     hitomi_url = "https://hitomi.la/reader/"
     reader_url = ".html#"
+
     for img_count in range(quantities):
-        save_images(hitomi_url+str(reader_id)+reader_url+str(img_count+1),folder=str(reader_id),img_count=img_count+1)
-
+        try:
+            save_images(hitomi_url+str(reader_id)+reader_url+str(img_count+1),folder=str(reader_id),img_count=img_count+1)
+        except:
+            img_count -=1
+            print("err：（还没想好）")
 image_series_list = ["3278803.html#960", "3267537.html#1445", "3269200.html#255", "3257320.html#865"]
-#测试用例
-#这部分等有空了再说
 
 
-# save_reader_images(3278803,960)
+save_reader_images(3267537,1445)
