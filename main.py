@@ -1,4 +1,6 @@
 # 添加必要的import语句
+from asyncio import sleep
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -22,7 +24,7 @@ def screenshot_compress(reader_id,quantities):
         for screenshot_count in range(quantities):
             zipF.write(reader_id,os.path.basename(str(reader_id+"_"+str(screenshot_count+1)+".png")))
 
-def save_images(url, folder,img_count,driver):
+def save_images(url, folder,img_count,driver,sleep_time):
     # 设置浏览器选项
     while not os.path.exists("images/"+str(folder)+"_"+str(img_count)+".png"):
         # 初始化浏览器驱动
@@ -30,7 +32,7 @@ def save_images(url, folder,img_count,driver):
             driver.get(url)
             print("\ropening page:" + url)
             # 等待页面加载完成（可根据需要调整等待时间）
-            time.sleep(5)
+            time.sleep(sleep_time)
             # 获取页面高度
             total_height = driver.execute_script("return document.body.scrollHeight")
             # 设置窗口大小以匹配页面高度
@@ -38,7 +40,7 @@ def save_images(url, folder,img_count,driver):
             # 滚动到页面顶部
             driver.execute_script("window.scrollTo(0, 0);")
             # 等待内容加载
-            time.sleep(5)
+            time.sleep(sleep_time)
             # 保存全屏截图
             img_path = "images/"+str(folder)+"_"+str(img_count)+".png"
             driver.save_screenshot(os.path.abspath(img_path))
@@ -49,7 +51,11 @@ def save_images(url, folder,img_count,driver):
     else:
         print("\r"+str(url)+"图片已存在")
 
-def save_reader_images(reader_id,quantities):
+def save_reader_images(reader_id,quantities,mode):
+    if mode == "下载":
+        sleep_time = 5
+    else:
+        sleep_time = 7.5
     # 定义Hitomi.la的Reader页面URL
     hitomi_url = "https://hitomi.la/reader/"
     reader_url = ".html#"
@@ -65,13 +71,14 @@ def save_reader_images(reader_id,quantities):
     # 启动Chrome浏览器
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(hitomi_url+str(reader_id)+reader_url+"1")
-    time.sleep(5)
+    time.sleep(sleep_time)
     while img_count < quantities:
         img_count+=1
         try:
             print("\r"+"downloading image:"+str(img_count))
             save_images(hitomi_url+str(reader_id)+reader_url+str(img_count),
-                        folder=str(reader_id),img_count=img_count,driver=driver)
+                        folder=str(reader_id),img_count=img_count,
+                        driver=driver,sleep_time=sleep_time)
         except:
             img_count -= 1
             pass
@@ -105,4 +112,7 @@ if not os.path.exists("chromedriver-win64/chromedriver.exe"):
 
 image_series_list = ["3278803.html#960", "3267537.html#1445", "3269200.html#255", "3257320.html#865"]
 # 示例用法
-save_reader_images(3257320,865)
+'''
+save_reader_images(3257320,865,"下载")
+save_reader_images(3257320,865,"缺失图片补齐")
+'''
