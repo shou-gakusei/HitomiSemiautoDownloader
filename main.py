@@ -8,6 +8,12 @@ import os
 import zipfile
 from pathlib import Path
 
+def delete_files(directory):
+    file_list = os.listdir(directory)
+    for file in file_list:
+        file_path = os.path.join(directory, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 def create_folder_pathlib(folder_path):
     path = Path(folder_path)
@@ -19,11 +25,12 @@ def create_folder_pathlib(folder_path):
 
 
 def screenshot_compress(reader_id: str, quantities: int):
-    with zipfile.ZipFile(file="zips_p2sw0rd_114514/"+reader_id, mode="w") as zipF:
-        for screenshot_count in range(quantities):
-            zipF.write(reader_id, os.path.basename(str(reader_id + "_" + str(screenshot_count + 1) + ".png")))
-    zipF.setpassword(b'114514')
-    zipF.close()
+    with zipfile.ZipFile(file="zips_p2sw0rd_114514/"+reader_id+".zip", mode="w") as zipF:
+        zipF.setpassword(b'114514')
+        for screenshot_count in range(0,quantities):
+            zipF.write("images/"+reader_id+"_"+str(screenshot_count+1)+".png", os.path.basename(str(reader_id + "_" + str(screenshot_count + 1) + ".png")))
+            print("zipped image:"+"images/"+reader_id+"_"+str(screenshot_count+1)+".png")
+        zipF.close()
 
 def save_images(url, folder, img_count, driver, sleep_time):
     # 设置浏览器选项
@@ -86,7 +93,6 @@ def save_reader_images(reader_id, quantities, mode):
                         folder=str(reader_id), img_count=img_count,
                         driver=driver, sleep_time=sleep_time)
         except:
-            img_count -= 1
             pass
     driver.quit()
 
@@ -133,16 +139,13 @@ def download_gallery_images(url_input):
     save_reader_images(hitomi_gallery_id, hitomi_gallery_count, "下载")
     save_reader_images(hitomi_gallery_id, hitomi_gallery_count, "缺失图片补齐")
     screenshot_compress(reader_id=str(hitomi_gallery_id), quantities=hitomi_gallery_count)
-    os.removedirs("images")
+    delete_files("images")
 
 
 
-'''
-测试用例
 gallery_list = [
     "https://hitomi.la/reader/1588234.html#90" ,"https://hitomi.la/reader/3309782.html#234",
     "https://hitomi.la/reader/3029387.html#208","https://hitomi.la/reader/3029387.html#208",
     "https://hitomi.la/reader/3292388.html#974","https://hitomi.la/reader/3323377.html#195",]
 for gallery_url in gallery_list:
     download_gallery_images(gallery_url)
-'''
