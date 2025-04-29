@@ -7,6 +7,7 @@ automatically download images from hitomi.la without annoying downloading proced
 [chormedriver官方下载网址](https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.165/win64/chromedriver-win64.zip)  
 # 已完成/重构的部分
 类断点续传 使用了本地的chormedriver并重构了driver相关的代码优化了一部分性能  
+顺手做了本地保存之后对图片编号的格式化（手机看起来更方便了）  
 自动检测/下载chormedriver 下好自动压缩（密码默认114514）
 # 目前已知的问题与解决方案
 网络环境不稳定导致获得的截图全是黑屏  
