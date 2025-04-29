@@ -18,27 +18,40 @@ def delete_files(directory):
 def create_folder_pathlib(folder_path):
     path = Path(folder_path)
     try:
-        path.mkdir(parents=True, exist_ok=True)  # parents=True 允许递归创建，exist_ok=True 避免存在时报错
-        print(f"文件夹已创建: {folder_path}")
+        path.mkdir(parents=True, exist_ok=True)  
+        # parents=True 允许递归创建，exist_ok=True 避免存在时报错
+        print(f"文件夹已创建: {folder_path}",end="")
     except Exception as e:
-        print(f"创建失败: {e}")
-
+        print(f"创建失败: {e}",end="")
 
 def screenshot_compress(reader_id: str, quantities: int):
     with zipfile.ZipFile(file="zips_p2sw0rd_114514/"+reader_id+".zip", mode="w") as zipF:
         zipF.setpassword(b'114514')
         for screenshot_count in range(0,quantities):
             zipF.write("images/"+reader_id+"_"+str(screenshot_count+1)+".png", os.path.basename(str(reader_id + "_" + str(screenshot_count + 1) + ".png")))
-            print("zipped image:"+"images/"+reader_id+"_"+str(screenshot_count+1)+".png")
+            print("\rzipped image:"+"images/"+reader_id+"_"+str(screenshot_count+1)+".png",end="")
         zipF.close()
 
-def save_images(url, folder, img_count, driver, sleep_time):
+def img_name_formating(num,length):
+    # 这里得点名感谢一下安卓的智障文件排序算法
+    num_digit = len(str(num))
+    if num_digit<length:
+        str_zero_counts = length-num_digit
+        str_output = "0"*str_zero_counts+str(num)
+    else:
+        str_output = str(num)
+    return str_output
+
+
+def save_images(url, folder, img_count, driver, sleep_time,quantities):
     # 设置浏览器选项
-    while not os.path.exists("images/" + str(folder) + "_" + str(img_count) + ".png"):
+    img_count_length = len(str(quantities))
+    img_count_formatted = img_name_formating(num=img_count, length=img_count_length)
+    while not os.path.exists("images/" + str(folder) + "_" + img_count_formatted + ".png"):
         # 初始化浏览器驱动
         try:
             driver.get(url)
-            print("\ropening page:" + url)
+            print("\ropening page:" + url,end="")
             # 等待页面加载完成（可根据需要调整等待时间）
             time.sleep(sleep_time)
             # 获取页面高度
@@ -50,15 +63,14 @@ def save_images(url, folder, img_count, driver, sleep_time):
             # 等待内容加载
             time.sleep(sleep_time)
             # 保存全屏截图
-            img_path = "images/" + str(folder) + "_" + str(img_count) + ".png"
+            img_path = "images/" + str(folder) + "_" + img_count_formatted + ".png"
             driver.save_screenshot(os.path.abspath(img_path))
-            print("\r" + f'截图已保存为：{os.path.abspath(img_path)}')
+            print("\r" + f'截图已保存为：{os.path.abspath(img_path)}',end="")
         except:
-            print("你的网络有问题！换个节点！！！！")
+            print("你的网络有问题！换个节点！！！！",end="")
             pass
     else:
-        print("\r" + str(url) + "图片已存在")
-
+        print("\r" + str(url) + "图片已存在",end="")
 
 def save_reader_images(reader_id, quantities, mode):
     # 用例
@@ -88,31 +100,40 @@ def save_reader_images(reader_id, quantities, mode):
     while img_count < quantities:
         img_count += 1
         try:
-            print("\r" + "downloading image:" + str(img_count))
+            print("\r" + "downloading image:" + str(img_count),end="")
             save_images(hitomi_url + str(reader_id) + reader_url + str(img_count),
                         folder=str(reader_id), img_count=img_count,
-                        driver=driver, sleep_time=sleep_time)
+                        driver=driver, sleep_time=sleep_time,quantities=quantities)
         except:
             pass
     driver.quit()
 
-
 def download_file_urllib(download_url, save_path):
     try:
         request.urlretrieve(download_url, save_path)
-        print(f"文件已下载到 {save_path}")
+        print(f"文件已下载到 {save_path}",end="")
     except Exception as e:
-        print(f"下载失败: {e}")
-
+        print(f"下载失败: {e}",end="")
 
 def unzip_file(zip_path, extract_to):
     try:
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(extract_to)
-        print(f"文件已解压到 {extract_to}")
+        print(f"文件已解压到 {extract_to}",end="")
     except Exception as e:
-        print(f"解压失败: {e}")
+        print(f"解压失败: {e}",end="")
 
+def download_gallery_images(url_input):
+    # NOT RECOMMENDED
+    list_url_split = url_input.split("/")
+    for splits in list_url_split:
+        if ".html#" in splits:
+            hitomi_gallery_id, hitomi_gallery_count = splits.split(".html#")
+    hitomi_gallery_id = int(hitomi_gallery_id)
+    hitomi_gallery_count = int(hitomi_gallery_count)
+    save_reader_images(hitomi_gallery_id, hitomi_gallery_count, "下载")
+    screenshot_compress(reader_id=str(hitomi_gallery_id), quantities=hitomi_gallery_count)
+    delete_files("images")
 
 # 先检查driver是否安装
 create_folder_pathlib("chromedriver-win64")
@@ -123,29 +144,32 @@ if not os.path.exists("chromedriver-win64/chromedriver.exe"):
         "temp/chromedriver-win64.zip")
     unzip_file("temp/chromedriver-win64.zip", "hitomidownloader")
 
-image_series_list = ["3278803.html#960", "3267537.html#1445", "3269200.html#255", "3257320.html#865"]
-
-
-# 示例用法
-def download_gallery_images(url_input):
-    # 不打算写类型检查
-    # example_url:https://hitomi.la/reader/1588234.html#90
-    list_url_split = url_input.split("/")
-    for splits in list_url_split:
-        if ".html#" in splits:
-            hitomi_gallery_id, hitomi_gallery_count = splits.split(".html#")
-    hitomi_gallery_id = int(hitomi_gallery_id)
-    hitomi_gallery_count = int(hitomi_gallery_count)
-    save_reader_images(hitomi_gallery_id, hitomi_gallery_count, "下载")
-    save_reader_images(hitomi_gallery_id, hitomi_gallery_count, "缺失图片补齐")
-    screenshot_compress(reader_id=str(hitomi_gallery_id), quantities=hitomi_gallery_count)
-    delete_files("images")
 
 
 
+
+
+
+# 测试用例
+'''
 gallery_list = [
-    "https://hitomi.la/reader/1588234.html#90" ,"https://hitomi.la/reader/3309782.html#234",
-    "https://hitomi.la/reader/3029387.html#208","https://hitomi.la/reader/3029387.html#208",
-    "https://hitomi.la/reader/3292388.html#974","https://hitomi.la/reader/3323377.html#195",]
+    "https://hitomi.la/reader/3329775.html#2000",
+    "https://hitomi.la/reader/3328352.html#475",
+    "https://hitomi.la/reader/3328768.html#249",
+    "https://hitomi.la/reader/3329041.html#189",
+    "https://hitomi.la/reader/3326723.html#194",
+    "https://hitomi.la/reader/3326640.html#589",
+    "https://hitomi.la/reader/3327301.html#177",
+    "https://hitomi.la/reader/3327241.html#103",
+    "https://hitomi.la/reader/3327910.html#1509",
+    "https://hitomi.la/reader/3328072.html#313",
+    "https://hitomi.la/reader/3331765.html#1404",
+    "https://hitomi.la/reader/2629813.html#153",
+    "https://hitomi.la/reader/3331841.html#799",
+    "https://hitomi.la/reader/3331970.html#269",
+    "https://hitomi.la/reader/3332193.html#620",
+    "https://hitomi.la/reader/3330952.html#356",
+    "https://hitomi.la/reader/3332721.html#175"]
 for gallery_url in gallery_list:
     download_gallery_images(gallery_url)
+'''
